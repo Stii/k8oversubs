@@ -12,7 +12,7 @@ Clone the repo and do the following:
 
 ```
 $ go mod tidy
-$ go build -o k8oversubs
+$ go build -o k8oversubs ./cmd/main.go
 $ ./k8oversubs --help
 Usage of ./k8oversubs:
   -apply
@@ -22,9 +22,11 @@ Usage of ./k8oversubs:
   -kubeconfig string
         (optional) absolute path to the kubeconfig file (default "/Users/homesweethome/.kube/config")
   -node string
-        Name of the node
+        Name of the node (default "getNodeName")
   -podcount int
         Number of pods to delete (default 10)
 ```
+
+If you do not specify a node name, it will do a lookup for the node that uses the most CPU. This might not always be the desired outcome, so might change in future.
 
 *Note* does not actually apply the deletion of pods. Yet
