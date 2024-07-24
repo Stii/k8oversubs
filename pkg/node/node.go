@@ -2,7 +2,9 @@ package node
 
 import (
 	"context"
+	"fmt"
 	"log"
+	"os"
 	"sort"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -47,7 +49,17 @@ func ProcessNodes(clientset *kubernetes.Clientset, metricsClient *versioned.Clie
 
 	// Get the node with the highest CPU usage
 	topNode := nodeMetricsList[0]
-	log.Printf("Node [%s] CPU [%d m]\n", topNode.Name, topNode.CPUUsage)
+	topNodeName := topNode.Name
+	// Get node details
+	topNodeCapacity, err := clientset.CoreV1().Nodes().Get(context.TODO(), topNodeName, metav1.GetOptions{})
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error fetching node: %v\n", err)
+		os.Exit(1)
+	}
+
+	// Get total CPU capacity of the node
+	totalCPUCapacity := topNodeCapacity.Status.Capacity["cpu"]
+	log.Printf("Node [%s] CPU [%d m] Capacity [%d m]\n", topNode.Name, topNode.CPUUsage, totalCPUCapacity.MilliValue())
 
 	return topNode.Name
 }
